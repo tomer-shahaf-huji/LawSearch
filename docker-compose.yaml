@@ -33,9 +33,9 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: legal_feedback_pg
+    container_name: tags_pg
     environment:
-      POSTGRES_DB: feedback_db
+      POSTGRES_DB: tags_tb
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     ports:
