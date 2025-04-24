@@ -1,0 +1,7 @@
+pandas
+transformers
+opensearch-py
+fastapi
+streamlit
+torch
+uvicorn[standard]
