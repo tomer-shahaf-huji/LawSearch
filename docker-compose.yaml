@@ -31,12 +31,26 @@ services:
       - opensearch
     restart: unless-stopped
 
+  postgres:
+    image: postgres:15
+    container_name: legal_feedback_pg
+    environment:
+      POSTGRES_DB: feedback_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   app:
     build: ./app
     ports:
       - "8501:8501"
     depends_on:
       - opensearch
+      - postgres
     volumes:
       - ./app:/app
 
