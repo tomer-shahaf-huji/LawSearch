@@ -28,16 +28,12 @@ def print_results(search_results: List[RetrievalResult]):
             st.markdown(f"**כותרת:** {result.headline}")
             st.markdown(f"**טקסט:**\n\n{result.chunk}")
 
+            
+if st.button("Lexical Search"):
+    lexical_search_results = opensearch_client.lexical_search(query, top_k=10)
+    print_results(lexical_search_results)
 
-col1, col2 = st.columns(2)
-
-with col1:
-    if st.button("Lexical Search"):
-        lexical_search_results = opensearch_client.lexical_search(query, top_k=10)
-        print_results(lexical_search_results)
-
-# with col2:
-#     if st.button("Semantic Search"):
-#         query_embedding = query_embedder.embed(query)
-#         semantic_search_results = opensearch_client.semantic_search(query_embedding, top_k=10)
-#         print_results(semantic_search_results)
+# if st.button("Semantic Search"):
+#     query_embedding = query_embedder.embed(query)
+#     semantic_search_results = opensearch_client.semantic_search(query_embedding, top_k=10)
+#     print_results(semantic_search_results)
