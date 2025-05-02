@@ -2,4 +2,6 @@ pandas
 opensearch-py
 fastapi
 streamlit
+sqlalchemy
+psycopg2-binary
 uvicorn[standard]
