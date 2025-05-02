@@ -35,7 +35,7 @@ services:
     image: postgres:15
     container_name: tags_pg
     environment:
-      POSTGRES_DB: tags_tb
+      POSTGRES_DB: tags_db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     ports:
