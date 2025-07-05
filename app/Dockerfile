@@ -25,4 +25,4 @@ COPY .. .
 EXPOSE 8501
 
 # Default command - modify as needed to launch your application
-CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8501", "--reload"]
