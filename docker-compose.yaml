@@ -54,6 +54,21 @@ services:
     volumes:
       - ./app:/app
 
+  ui:
+    build:
+      context: ./lawsearch_ui
+    ports:
+      - "3000:8080"
+    working_dir: /app
+    volumes:
+      - ./lawsearch_ui:/app
+      - ui_node_modules:/app/node_modules/
+    command: npm run dev
+    depends_on:
+      - app
+
+
 volumes:
   opensearch-data:
   pg-data:
+  ui_node_modules:
