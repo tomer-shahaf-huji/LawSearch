@@ -29,7 +29,7 @@ def print_results(query: str, search_results: List[RetrievalResult]):
             st.markdown(f"**מזהה מסמך:** `{result.doc_id}`")
             st.markdown(f"**כותרת:** {result.headline}")
             st.markdown(f"**טקסט:**\n\n{result.chunk}")
-            
+
             if st.button(f"👍 Like", key=f"like_{idx}"):
                 feedback_handler.store_feedback(query, result.doc_id, result.chunk, result.chunk, "like")
                 st.success("Liked!")
