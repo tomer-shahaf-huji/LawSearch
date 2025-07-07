@@ -4,13 +4,17 @@ import { CalendarDays, Building2, FileText, Eye } from "lucide-react";
 
 interface CaseResult {
   id: string;
-  title: string;
+  doc_id: string;
+  chunk: string;
   headline: string;
-  topic: string;
-  date: string;
+  district: string;
   court: string;
-  summary: string;
-  caseNumber: string;
+  judges: string;
+  judgement_type: string;
+  decision_date: string;
+  lexical_score?: number;
+  semantic_score?: number;
+  rrf_score?: number;
 }
 
 interface SearchResultsProps {
@@ -59,20 +63,16 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: Sear
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className="text-xs">
-                      {case_.caseNumber}
+                      מסמך: {case_.doc_id}
                     </Badge>
                     <Badge variant="secondary" className="text-xs">
-                      {case_.topic}
+                      {case_.judgement_type}
                     </Badge>
                   </div>
                   
                   <h3 className="text-lg font-semibold leading-tight mb-2 text-primary hover:text-legal-blue">
-                    {highlightSearchTerm(case_.title, searchQuery)}
-                  </h3>
-                  
-                  <p className="text-base text-foreground font-medium mb-2">
                     {highlightSearchTerm(case_.headline, searchQuery)}
-                  </p>
+                  </h3>
                 </div>
                 
                 <Eye className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-1" />
@@ -81,23 +81,27 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: Sear
             
             <CardContent className="pt-0">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                {highlightSearchTerm(case_.summary, searchQuery)}
+                {highlightSearchTerm(case_.chunk, searchQuery)}
               </p>
               
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">
                   <CalendarDays className="w-4 h-4" />
-                  <span>{case_.date}</span>
+                  <span>תאריך: {case_.decision_date}</span>
                 </div>
                 
                 <div className="flex items-center gap-1">
                   <Building2 className="w-4 h-4" />
-                  <span>{case_.court}</span>
+                  <span>מחוז: {case_.district}</span>
                 </div>
                 
                 <div className="flex items-center gap-1">
                   <FileText className="w-4 h-4" />
-                  <span>פסק דין מלא</span>
+                  <span>בית משפט: {case_.court}</span>
+                </div>
+                
+                <div className="flex items-center gap-1">
+                  <span>שופט/ת: {case_.judges}</span>
                 </div>
               </div>
             </CardContent>

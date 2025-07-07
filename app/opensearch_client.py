@@ -10,6 +10,10 @@ class RetrievalResult:
     doc_id: str
     chunk: str
     headline: str
+    district: str 
+    court: str 
+    judges: str 
+    decision_date: str
     lexical_score: float = None
     semantic_score: float = None
     rrf_score: float = None
@@ -31,6 +35,10 @@ class OpenSearchClient:
                     doc_id=hit["_source"]["doc_id"],
                     chunk=hit["_source"]["chunk"],
                     headline=hit["_source"]["headline"],
+                    district=hit["_source"]["district"],
+                    court=hit["_source"]["court"],
+                    judges=hit["_source"]["judges"],
+                    decision_date=hit["_source"]["decision_date"],
                     lexical_score=hit["_score"]
                 )
             )

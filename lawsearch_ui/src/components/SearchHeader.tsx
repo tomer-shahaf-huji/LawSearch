@@ -20,7 +20,7 @@ const SearchHeader = ({ searchQuery, onSearchChange, onSearch }: SearchHeaderPro
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center mb-6">
           <Scale className="w-8 h-8 ml-3 text-primary" />
-          <h1 className="text-3xl font-bold text-primary">מנוע חיפוש פסקי דין </h1>
+          <h1 className="text-3xl font-bold text-primary">מנוע חיפוש פסקי דין</h1>
         </div>
         
         <div className="max-w-3xl mx-auto">

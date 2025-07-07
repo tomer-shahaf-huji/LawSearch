@@ -5,50 +5,45 @@ import SearchResults from "@/components/SearchResults";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [hasSearched, setHasSearched] = useState(true);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [results, setResults] = useState<any[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
   const [filters, setFilters] = useState({
     dateRange: "all",
     courts: [],
     topics: []
   });
 
-  // Mock data for demonstration
-  const mockResults = [
-    {
-      id: "1",
-      title: "עמותת מיצדק לאמנות נגד עיריית תל אביב-יפו",
-      headline: "ערעור על החלטת בית משפט השלום בעניין זכויות יוצרים ברחבה ציבורית",
-      topic: "קניין רוחני",
-      date: "15 בנובמבר 2023",
-      court: "בית משפט מחוזי תל אביב",
-      summary: "בית המשפט דן בשאלת היקף זכויות האמן ברחבה ציבורית לעומת סמכויות העירייה בעיצוב המרחב הציבורי. הדיון התמקד בפרשנות חוק זכות יוצרים ביחס ליצירות אמנות קבועות במרחב הציבורי.",
-      caseNumber: "ע\"א 1234/23"
-    },
-    {
-      id: "2", 
-      title: "ישראל כהן נגד חברת הביטוח הכללית",
-      headline: "תביעת נזיקין בעקבות תאונת דרכים - חובת הוכחת רשלנות",
-      topic: "נזיקין",
-      date: "8 באוקטובר 2023",
-      court: "בית משפט מחוזי ירושלים",
-      summary: "התיק עוסק בשאלת חלוקת נטל ההוכחה בתביעות נזיקין הנובעות מתאונות דרכים. בית המשפט קבע כללים חדשים לגבי הוכחת רשלנות במקרים של התנגשות צד.",
-      caseNumber: "ת\"א 5678/22"
-    },
-    {
-      id: "3",
-      title: "המדינה נגד אברהם לוי",
-      headline: "עבירות מס הכנסה - פרשנות החוק בעניין הכנסות לא דווחות",
-      topic: "מיסים",
-      date: "22 בספטמבר 2023", 
-      court: "בית משפט מחוזי חיפה",
-      summary: "פסק הדין קובע תקדים חשוב בפרשנות חוק מס הכנסה בנוגע להכנסות מעסקאות מקרקעין שלא דווחו כדין. בית המשפט התייחס לשאלת התיקנון התיאוטי של המס.",
-      caseNumber: "ת\"פ 9012/23"
-    }
-  ];
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:8501/api/lexical_search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: searchQuery }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setResults(data.results || data || []);
+      setTotalResults(data.total || data.length || 0);
       setHasSearched(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'שגיאה בחיפוש');
+      console.error('Search error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -116,12 +111,22 @@ const Index = () => {
               onFiltersChange={setFilters}
             />
             
-            <SearchResults
-              results={mockResults}
-              searchQuery={searchQuery}
-              totalResults={156}
-              onCaseClick={handleCaseClick}
-            />
+            {error ? (
+              <div className="text-center py-8">
+                <p className="text-destructive">שגיאה: {error}</p>
+              </div>
+            ) : isLoading ? (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">מחפש...</p>
+              </div>
+            ) : (
+              <SearchResults
+                results={results}
+                searchQuery={searchQuery}
+                totalResults={totalResults}
+                onCaseClick={handleCaseClick}
+              />
+            )}
           </div>
         </div>
       )}
