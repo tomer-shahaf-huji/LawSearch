@@ -9,6 +9,7 @@ class RetrievalResult:
     id: str
     doc_id: str
     chunk: str
+    content: str
     headline: str
     district: str 
     court: str 
@@ -34,12 +35,15 @@ class OpenSearchClient:
                     id=hit["_id"],
                     doc_id=hit["_source"]["doc_id"],
                     chunk=hit["_source"]["chunk"],
+                    content = "***full content: \n***" + hit["_source"]["chunk"], #mock
                     headline=hit["_source"]["headline"],
                     district=hit["_source"]["district"],
                     court=hit["_source"]["court"],
                     judges=hit["_source"]["judges"],
+                    judgement_type=hit["_source"]["judgement_type"],
                     decision_date=hit["_source"]["decision_date"],
                     lexical_score=hit["_score"]
+
                 )
             )
 

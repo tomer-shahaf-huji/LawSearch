@@ -1,11 +1,14 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CalendarDays, Building2, FileText, Eye } from "lucide-react";
+import { useState } from "react";
 
 interface CaseResult {
   id: string;
   doc_id: string;
   chunk: string;
+  content: string;
   headline: string;
   district: string;
   court: string;
@@ -25,6 +28,8 @@ interface SearchResultsProps {
 }
 
 const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: SearchResultsProps) => {
+  const [selectedCase, setSelectedCase] = useState<CaseResult | null>(null);
+
   const highlightSearchTerm = (text: string, query: string) => {
     if (!query) return text;
     
@@ -36,6 +41,11 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: Sear
         <mark key={index} className="bg-legal-gray/20">{part}</mark>
       ) : part
     );
+  };
+
+  const handleCaseClick = (case_: CaseResult) => {
+    setSelectedCase(case_);
+    onCaseClick(case_.id);
   };
 
   return (
@@ -56,7 +66,7 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: Sear
           <Card 
             key={case_.id} 
             className="hover:shadow-md transition-shadow cursor-pointer border-r-4 border-r-legal-blue/20 hover:border-r-legal-blue"
-            onClick={() => onCaseClick(case_.id)}
+            onClick={() => handleCaseClick(case_)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-4">
@@ -117,6 +127,59 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: Sear
           </button>
         </div>
       )}
+
+      {/* Full case view dialog */}
+      <Dialog open={selectedCase !== null} onOpenChange={() => setSelectedCase(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" dir="rtl">
+          {selectedCase && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-primary">
+                  {selectedCase.headline}
+                </DialogTitle>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="outline" className="text-xs">
+                    מסמך: {selectedCase.doc_id}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {selectedCase.judgement_type}
+                  </Badge>
+                </div>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
+                  <div className="flex items-center gap-1">
+                    <CalendarDays className="w-4 h-4" />
+                    <span>תאריך: {selectedCase.decision_date}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <Building2 className="w-4 h-4" />
+                    <span>מחוז: {selectedCase.district}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <FileText className="w-4 h-4" />
+                    <span>בית משפט: {selectedCase.court}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <span>שופט/ת: {selectedCase.judges}</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-2">תוכן מלא:</h4>
+                  <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                    {highlightSearchTerm(selectedCase.content, searchQuery)}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
