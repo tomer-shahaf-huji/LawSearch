@@ -19,13 +19,13 @@ const SearchHeader = ({ searchQuery, onSearchChange, onSearch }: SearchHeaderPro
     <div className="bg-header-bg">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center mb-6">
-          <Scale className="w-8 h-8 ml-3 text-primary" />
+          <Scale className="w-8 h-8 mr-3 text-primary" />
           <h1 className="text-3xl font-bold text-primary">מנוע חיפוש פסקי דין</h1>
         </div>
         
         <div className="max-w-3xl mx-auto">
-          <div className="flex gap-2">
-            <Button onClick={onSearch} variant="default" className="px-6">
+          <form onSubmit={(e) => { e.preventDefault(); onSearch(); }} className="flex gap-2">
+            <Button type="submit" onClick={onSearch} variant="default" className="px-6">
               חפש
             </Button>
             <div className="flex-1 relative">
@@ -40,7 +40,7 @@ const SearchHeader = ({ searchQuery, onSearchChange, onSearch }: SearchHeaderPro
                 dir="rtl"
               />
             </div>
-          </div>
+          </form>
           
           <div className="flex flex-wrap gap-2 mt-4 text-sm justify-end">
             <button className="text-legal-gray hover:text-legal-blue transition-colors">פלילי</button>

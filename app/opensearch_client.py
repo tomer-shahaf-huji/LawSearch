@@ -11,10 +11,11 @@ class RetrievalResult:
     chunk: str
     content: str
     headline: str
-    district: str 
-    court: str 
-    judges: str 
-    decision_date: str
+    judgement_type: str
+    district: str = None
+    court: str = None
+    judges: str = None
+    decision_date: str = None
     lexical_score: float = None
     semantic_score: float = None
     rrf_score: float = None
