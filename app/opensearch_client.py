@@ -118,6 +118,6 @@ def bootstrap_open_search_client() -> OpenSearchClient:
         verify_certs=False
     )
 
-    index_name = "law_cases_hybrid"
+    index_name = "all_law_cases"
     opensearch_client = OpenSearchClient(client=client, index_name=index_name)
     return opensearch_client
