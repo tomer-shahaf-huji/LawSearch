@@ -36,7 +36,7 @@ class OpenSearchClient:
                     id=hit["_id"],
                     doc_id=hit["_source"]["doc_id"],
                     chunk=hit["_source"]["chunk"],
-                    content = "***full content: \n***" + hit["_source"]["chunk"], #mock
+                    content = hit["_source"]["content"],
                     headline=hit["_source"]["headline"],
                     district=hit["_source"]["district"],
                     court=hit["_source"]["court"],
