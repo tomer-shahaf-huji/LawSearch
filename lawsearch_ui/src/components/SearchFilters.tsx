@@ -15,42 +15,50 @@ interface SearchFiltersProps {
 
 const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
   const courts = [
-    "בית המשפט העליון",
-    "בית משפט מחוזי תל אביב",
-    "בית משפט מחוזי ירושלים",
-    "בית משפט מחוზי חיפה",
-    "בית משפט מחוזי באר שבע",
-    "בית דין לעבודה ארצי",
-    "בית משפט לענייני משפחה"
+    'בית המשפט העליון',
+    'בתי הדין לעבודה',
+    'בתי המשפט המחוזיים',
+    'בתי המשפט לענייני משפחה',
+    'בתי המשפט לעניינים מקומיים',
+    'בתי המשפט לתביעות קטנות',
+    'בתי המשפט לתעבורה',
+    'בתי משפט השלום',
+    'בתי משפט לנוער',
+    'ועדות שחרורים'
   ];
 
   const topics = [
-    "נזיקין",
-    "חוזים",
-    "דיני משפחה",
-    "דיני עבודה",
-    "דיני חברות",
-    "פלילי",
-    "מנהלי",
-    "חוקתי",
-    "מיסים",
-    "ביטוח"
+    'אזרחי',
+    'אין מידע',
+    'בג"ץ',
+    'ועדות שחרורים',
+    'משפחה',
+    'נוער',
+    'עבודה',
+    'עניינים כלכליים',
+    'עניינים מנהליים',
+    'פלילי',
+    'שאר הנושאים',
+    'תעבורה'
   ];
 
-  const handleCourtChange = (court: string, checked: boolean) => {
-    const newCourts = checked 
-      ? [...filters.courts, court]
-      : filters.courts.filter(c => c !== court);
-    
-    onFiltersChange({ ...filters, courts: newCourts });
+  // Change courts and topics to single value (string) instead of array
+  const handleCourtChange = (court: string) => {
+    if (filters.courts[0] === court) {
+      // If already selected, clicking again removes the filter
+      onFiltersChange({ ...filters, courts: [] });
+    } else {
+      onFiltersChange({ ...filters, courts: [court] });
+    }
   };
 
-  const handleTopicChange = (topic: string, checked: boolean) => {
-    const newTopics = checked 
-      ? [...filters.topics, topic]
-      : filters.topics.filter(t => t !== topic);
-    
-    onFiltersChange({ ...filters, topics: newTopics });
+  const handleTopicChange = (topic: string) => {
+    if (filters.topics[0] === topic) {
+      // If already selected, clicking again removes the filter
+      onFiltersChange({ ...filters, topics: [] });
+    } else {
+      onFiltersChange({ ...filters, topics: [topic] });
+    }
   };
 
   return (
@@ -89,18 +97,22 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
               בתי משפט
             </Label>
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {courts.map((court) => (
-                <div key={court} className="flex items-center space-x-2 space-x-reverse">
-                  <Checkbox
-                    id={`court-${court}`}
-                    checked={filters.courts.includes(court)}
-                    onCheckedChange={(checked) => handleCourtChange(court, checked as boolean)}
-                  />
-                  <Label htmlFor={`court-${court}`} className="text-sm leading-tight">
-                    {court}
-                  </Label>
-                </div>
-              ))}
+              {courts.map((court) => {
+                const selected = filters.courts[0] === court;
+                return (
+                  <button
+                    key={court}
+                    type="button"
+                    onClick={() => handleCourtChange(court)}
+                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                  >
+                    <span
+                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                    />
+                    <span className="text-sm leading-tight">{court}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -108,18 +120,22 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
           <div>
             <Label className="text-base font-medium mb-3 block">נושאים</Label>
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {topics.map((topic) => (
-                <div key={topic} className="flex items-center space-x-2 space-x-reverse">
-                  <Checkbox
-                    id={`topic-${topic}`}
-                    checked={filters.topics.includes(topic)}
-                    onCheckedChange={(checked) => handleTopicChange(topic, checked as boolean)}
-                  />
-                  <Label htmlFor={`topic-${topic}`} className="text-sm">
-                    {topic}
-                  </Label>
-                </div>
-              ))}
+              {topics.map((topic) => {
+                const selected = filters.topics[0] === topic;
+                return (
+                  <button
+                    key={topic}
+                    type="button"
+                    onClick={() => handleTopicChange(topic)}
+                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                  >
+                    <span
+                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                    />
+                    <span className="text-sm">{topic}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </CardContent>

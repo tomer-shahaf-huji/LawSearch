@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SearchHeader from "@/components/SearchHeader";
 import SearchFilters from "@/components/SearchFilters";
 import SearchResults from "@/components/SearchResults";
@@ -15,6 +15,7 @@ const Index = () => {
     courts: [],
     topics: []
   });
+  const [filteredResults, setFilteredResults] = useState<any[]>([]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -46,6 +47,43 @@ const Index = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Helper for date filtering
+    const filterByDate = (case_) => {
+      if (filters.dateRange === "all") return true;
+      if (!case_.decision_date) return false;
+      const year = parseInt(case_.decision_date.slice(0, 4));
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      if (filters.dateRange === "last-year") {
+        return year >= currentYear - 1;
+      }
+      if (filters.dateRange === "last-5-years") {
+        return year >= currentYear - 5;
+      }
+      if (filters.dateRange === "last-10-years") {
+        return year >= currentYear - 10;
+      }
+      return true;
+    };
+
+    const filterByCourts = (case_) => {
+      if (!filters.courts.length) return true;
+      return filters.courts.includes(case_.court);
+    };
+
+    const filterByTopics = (case_) => {
+      if (!filters.topics.length) return true;
+      return filters.topics.includes(case_.judgement_type);
+    };
+
+    const filtered = results.filter(
+      (case_) => filterByDate(case_) && filterByCourts(case_) && filterByTopics(case_)
+    );
+    setFilteredResults(filtered);
+    setTotalResults(filtered.length);
+  }, [results, filters]);
 
   const handleCaseClick = (caseId: string) => {
     console.log("Opening case:", caseId);
@@ -121,9 +159,9 @@ const Index = () => {
               </div>
             ) : (
               <SearchResults
-                results={results}
+                results={filteredResults}
                 searchQuery={searchQuery}
-                totalResults={totalResults}
+                totalResults={filteredResults.length}
                 onCaseClick={handleCaseClick}
               />
             )}
