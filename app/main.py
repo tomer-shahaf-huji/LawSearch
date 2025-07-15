@@ -27,11 +27,11 @@ query_embedder = bootstrap_embedder(embedder_name="mock")
 @app.post("/api/lexical_search")
 async def lexical_search_documents(resuest: SearchRequest):
     try:
-        lexical_search_results = opensearch_client.lexical_search(resuest.query, top_k=10)
+        lexical_search_results, total = opensearch_client.lexical_search(resuest.query, top_k=10)
         return {
-            "results": lexical_search_results
+            "results": lexical_search_results,
+            "total": total
         }
-    
     except Exception as e:
         return {"error": str(e)}
 

@@ -26,9 +26,10 @@ class OpenSearchClient:
         self.client = client
         self.index_name = index_name
 
-    def _execute_opensearch_search(self, body: dict) -> List[RetrievalResult]:
+    def _execute_opensearch_search(self, body: dict):
         response = self.client.search(index=self.index_name, body=body)
         results = []
+        total = response["hits"]["total"]["value"] if "total" in response["hits"] else len(response["hits"]["hits"])
 
         for hit in response["hits"]["hits"]:
             results.append(
@@ -38,19 +39,18 @@ class OpenSearchClient:
                     chunk=hit["_source"]["chunk"],
                     content = hit["_source"]["content"],
                     headline=hit["_source"]["headline"],
-                    district=hit["_source"]["district"],
-                    court=hit["_source"]["court"],
-                    judges=hit["_source"]["judges"],
-                    judgement_type=hit["_source"]["judgement_type"],
-                    decision_date=hit["_source"]["decision_date"],
+                    district=hit["_source"].get("district"),
+                    court=hit["_source"].get("court"),
+                    judges=hit["_source"].get("judges"),
+                    judgement_type=hit["_source"].get("judgement_type"),
+                    decision_date=hit["_source"].get("decision_date"),
                     lexical_score=hit["_score"]
-
                 )
             )
 
-        return results
+        return results, total
 
-    def lexical_search(self, query: str, top_k: int = 10) -> List[RetrievalResult]:
+    def lexical_search(self, query: str, top_k: int = 10):
         body = {
             "size": top_k,
             "query": {
@@ -59,8 +59,8 @@ class OpenSearchClient:
                 }
             }
         }
-        lexical_results = self._execute_opensearch_search(body)
-        return lexical_results
+        lexical_results, total = self._execute_opensearch_search(body)
+        return lexical_results, total
 
     def semantic_search(self, query_vector: List[float], top_k: int = 10) -> List[RetrievalResult]:
         print(type(query_vector))
