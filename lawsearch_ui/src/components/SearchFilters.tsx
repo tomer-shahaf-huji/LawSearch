@@ -9,6 +9,7 @@ interface SearchFiltersProps {
     dateRange: string;
     courts: string[];
     topics: string[];
+    years: string[];
   };
   onFiltersChange: (filters: any) => void;
 }
@@ -42,6 +43,23 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     'תעבורה'
   ];
 
+  const allYearsValue = "all";
+  const years = [
+    allYearsValue, // 'כל השנים' option
+    "2025",
+    "2024",
+    "2023",
+    "2022",
+    "2021",
+    "2020",
+    "2019",
+    "2018",
+    "2017",
+    "2016",
+    "2015",
+    "unknown"
+  ];
+
   // Change courts and topics to single value (string) instead of array
   const handleCourtChange = (court: string) => {
     if (filters.courts[0] === court) {
@@ -61,6 +79,24 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     }
   };
 
+  const handleYearChange = (year: string) => {
+    let yearsArr = filters.years || [];
+    if (year === allYearsValue) {
+      // If 'all years' is selected, deselect all others and select only 'all'
+      onFiltersChange({ ...filters, years: [allYearsValue] });
+      return;
+    }
+    // If any other year is selected, remove 'all' if present
+    yearsArr = yearsArr.filter((y) => y !== allYearsValue);
+    if (yearsArr.includes(year)) {
+      const newYears = yearsArr.filter((y) => y !== year);
+      // If nothing left, reselect 'all years'
+      onFiltersChange({ ...filters, years: newYears.length === 0 ? [allYearsValue] : newYears });
+    } else {
+      onFiltersChange({ ...filters, years: [...yearsArr, year] });
+    }
+  };
+
   return (
     <div className="w-80 space-y-4" dir="rtl">
       <Card>
@@ -71,23 +107,30 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Date Range */}
+          {/* Year Multi-Select */}
           <div>
             <Label className="flex items-center gap-2 text-base font-medium mb-3">
               <Calendar className="w-4 h-4" />
-              תקופת זמן
+              שנים
             </Label>
-            <Select value={filters.dateRange} onValueChange={(value) => onFiltersChange({ ...filters, dateRange: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="בחר תקופה" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל התקופות</SelectItem>
-                <SelectItem value="last-year">השנה האחרונה</SelectItem>
-                <SelectItem value="last-5-years">5 שנים אחרונות</SelectItem>
-                <SelectItem value="last-10-years">10 שנים אחרונות</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {years.map((year) => {
+                const selected = (filters.years || []).includes(year);
+                return (
+                  <button
+                    key={year}
+                    type="button"
+                    onClick={() => handleYearChange(year)}
+                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                  >
+                    <span
+                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                    />
+                    <span className="text-sm leading-tight">{year === allYearsValue ? "כל השנים" : year}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Courts */}

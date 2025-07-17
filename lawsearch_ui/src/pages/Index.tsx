@@ -11,9 +11,9 @@ const Index = () => {
   const [results, setResults] = useState<any[]>([]);
   const [totalResults, setTotalResults] = useState(0);
   const [filters, setFilters] = useState({
-    dateRange: "all",
     courts: [],
-    topics: []
+    topics: [],
+    years: ["all"]
   });
   const [filteredResults, setFilteredResults] = useState<any[]>([]);
   const [visibleCount, setVisibleCount] = useState(10);
@@ -50,38 +50,26 @@ const Index = () => {
   };
 
   useEffect(() => {
-    // Helper for date filtering
-    const filterByDate = (case_) => {
-      if (filters.dateRange === "all") return true;
+    const filterByYears = (case_) => {
+      if (!filters.years || filters.years.length === 0 || filters.years.includes("all")) return true;
       if (!case_.decision_date) return false;
-      const year = parseInt(case_.decision_date.slice(0, 4));
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      if (filters.dateRange === "last-year") {
-        return year >= currentYear - 1;
-      }
-      if (filters.dateRange === "last-5-years") {
-        return year >= currentYear - 5;
-      }
-      if (filters.dateRange === "last-10-years") {
-        return year >= currentYear - 10;
-      }
-      return true;
+      const match = case_.decision_date.match(/\d{4}$/);
+      const yearStr = match ? match[0] : "";
+      return filters.years.includes(yearStr);
     };
-
     const filterByCourts = (case_) => {
       if (!filters.courts.length) return true;
       return filters.courts.includes(case_.court);
     };
-
     const filterByTopics = (case_) => {
       if (!filters.topics.length) return true;
       return filters.topics.includes(case_.judgement_type);
     };
-
-    const filtered = results.filter(
-      (case_) => filterByDate(case_) && filterByCourts(case_) && filterByTopics(case_)
-    );
+    const filtered = Array.isArray(results)
+      ? results.filter(
+          (case_) => filterByYears(case_) && filterByCourts(case_) && filterByTopics(case_)
+        )
+      : [];
     setFilteredResults(filtered);
     setTotalResults(filtered.length);
     setVisibleCount(10); // Reset visible count on new filter/search
