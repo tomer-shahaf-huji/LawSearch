@@ -160,6 +160,7 @@ const Index = () => {
                   searchQuery={searchQuery}
                   totalResults={filteredResults.length}
                   onCaseClick={handleCaseClick}
+                  filters={filters}
                 />
                 {visibleCount < filteredResults.length && (
                   <div className="text-center pt-6">

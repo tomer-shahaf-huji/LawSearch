@@ -25,9 +25,15 @@ interface SearchResultsProps {
   searchQuery: string;
   totalResults: number;
   onCaseClick: (caseId: string) => void;
+  filters?: {
+    years?: string[];
+    courts?: string[];
+    topics?: string[];
+    districts?: string[];
+  };
 }
 
-const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: SearchResultsProps) => {
+const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filters }: SearchResultsProps) => {
   const [selectedCase, setSelectedCase] = useState<CaseResult | null>(null);
 
   const highlightSearchTerm = (text: string, query: string) => {
@@ -48,12 +54,32 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: Sear
     onCaseClick(case_.id);
   };
 
+  // Helper to render active filters as a string
+  const renderActiveFilters = () => {
+    if (!filters) return null;
+    const parts: string[] = [];
+    if (filters.years && filters.years.length && !filters.years.includes("all")) {
+      parts.push(`שנה: ${filters.years.join(", ")}`);
+    }
+    if (filters.districts && filters.districts.length) {
+      parts.push(`מחוז: ${filters.districts.join(", ")}`);
+    }
+    if (filters.topics && filters.topics.length) {
+      parts.push(`נושא: ${filters.topics.join(", ")}`);
+    }
+    if (filters.courts && filters.courts.length) {
+      parts.push(`בית משפט: ${filters.courts.join(", ")}`);
+    }
+    if (parts.length === 0) return null;
+    return `(${parts.join(" | ")})`;
+  };
+
   return (
     <div className="flex-1 space-y-4" dir="rtl">
       {/* Results summary */}
       <div className="flex items-center justify-between mb-6">
         <div className="text-legal-gray">
-          נמצאו {totalResults.toLocaleString('he-IL')} תוצאות עבור "<span className="font-medium">{searchQuery}</span>"
+          נמצאו {totalResults.toLocaleString('he-IL')} תוצאות עבור "<span className="font-medium">{searchQuery}</span>" {renderActiveFilters() && <span className="text-xs text-muted-foreground">{renderActiveFilters()}</span>}
         </div>
         <div className="text-sm text-muted-foreground">
           מיון לפי רלוונטיות
