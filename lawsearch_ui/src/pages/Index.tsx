@@ -13,7 +13,8 @@ const Index = () => {
   const [filters, setFilters] = useState({
     courts: [],
     topics: [],
-    years: ["all"]
+    years: ["all"],
+    districts: []
   });
   const [filteredResults, setFilteredResults] = useState<any[]>([]);
   const [visibleCount, setVisibleCount] = useState(10);
@@ -65,9 +66,13 @@ const Index = () => {
       if (!filters.topics.length) return true;
       return filters.topics.includes(case_.judgement_type);
     };
+    const filterByDistricts = (case_) => {
+      if (!filters.districts || filters.districts.length === 0) return true;
+      return filters.districts.includes(case_.district);
+    };
     const filtered = Array.isArray(results)
       ? results.filter(
-          (case_) => filterByYears(case_) && filterByCourts(case_) && filterByTopics(case_)
+          (case_) => filterByYears(case_) && filterByCourts(case_) && filterByTopics(case_) && filterByDistricts(case_)
         )
       : [];
     setFilteredResults(filtered);

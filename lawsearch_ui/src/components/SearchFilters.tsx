@@ -6,10 +6,10 @@ import { Calendar, Filter, Building2 } from "lucide-react";
 
 interface SearchFiltersProps {
   filters: {
-    dateRange: string;
     courts: string[];
     topics: string[];
     years: string[];
+    districts?: string[];
   };
   onFiltersChange: (filters: any) => void;
 }
@@ -30,7 +30,6 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
 
   const topics = [
     'אזרחי',
-    'אין מידע',
     'בג"ץ',
     'ועדות שחרורים',
     'משפחה',
@@ -40,8 +39,20 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     'עניינים מנהליים',
     'פלילי',
     'שאר הנושאים',
-    'תעבורה'
+    'תעבורה', 
+    'אין מידע',
   ];
+
+  const districts = [
+    'מחוז תל-אביב',
+    'מחוז חיפה',
+    'מחוז מרכז',
+    'מחוז דרום',
+    'מחוז ירושלים',
+    'מחוז צפון',
+    'בית המשפט העליון',
+    'אין מידע'
+  ]
 
   const allYearsValue = "all";
   const years = [
@@ -94,6 +105,15 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
       onFiltersChange({ ...filters, years: newYears.length === 0 ? [allYearsValue] : newYears });
     } else {
       onFiltersChange({ ...filters, years: [...yearsArr, year] });
+    }
+  };
+
+  const handleDistrictChange = (district: string) => {
+    if ((filters.districts || [])[0] === district) {
+      // If already selected, clicking again removes the filter
+      onFiltersChange({ ...filters, districts: [] });
+    } else {
+      onFiltersChange({ ...filters, districts: [district] });
     }
   };
 
@@ -176,6 +196,29 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
                       className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
                     />
                     <span className="text-sm">{topic}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Districts */}
+          <div>
+            <Label className="text-base font-medium mb-3 block">מחוזות</Label>
+            <div className="space-y-2 max-h-40 overflow-y-auto">
+              {districts.map((district) => {
+                const selected = (filters.districts || [])[0] === district;
+                return (
+                  <button
+                    key={district}
+                    type="button"
+                    onClick={() => handleDistrictChange(district)}
+                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                  >
+                    <span
+                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                    />
+                    <span className="text-sm">{district}</span>
                   </button>
                 );
               })}
