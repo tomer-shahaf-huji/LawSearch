@@ -16,6 +16,7 @@ const Index = () => {
     topics: []
   });
   const [filteredResults, setFilteredResults] = useState<any[]>([]);
+  const [visibleCount, setVisibleCount] = useState(10);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -83,7 +84,10 @@ const Index = () => {
     );
     setFilteredResults(filtered);
     setTotalResults(filtered.length);
+    setVisibleCount(10); // Reset visible count on new filter/search
   }, [results, filters]);
+
+  const handleLoadMore = () => setVisibleCount((prev) => prev + 10);
 
   const handleCaseClick = (caseId: string) => {
     console.log("Opening case:", caseId);
@@ -148,7 +152,6 @@ const Index = () => {
               filters={filters}
               onFiltersChange={setFilters}
             />
-            
             {error ? (
               <div className="text-center py-8">
                 <p className="text-destructive">שגיאה: {error}</p>
@@ -158,12 +161,21 @@ const Index = () => {
                 <p className="text-muted-foreground">מחפש...</p>
               </div>
             ) : (
-              <SearchResults
-                results={filteredResults}
-                searchQuery={searchQuery}
-                totalResults={filteredResults.length}
-                onCaseClick={handleCaseClick}
-              />
+              <div className="flex-1">
+                <SearchResults
+                  results={filteredResults.slice(0, visibleCount)}
+                  searchQuery={searchQuery}
+                  totalResults={filteredResults.length}
+                  onCaseClick={handleCaseClick}
+                />
+                {visibleCount < filteredResults.length && (
+                  <div className="text-center pt-6">
+                    <button className="text-legal-blue hover:text-legal-blue-light font-medium" onClick={handleLoadMore}>
+                      טען תוצאות נוספות
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

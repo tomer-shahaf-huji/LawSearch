@@ -119,15 +119,6 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick }: Sear
         ))}
       </div>
 
-      {/* Load more */}
-      {results.length > 0 && (
-        <div className="text-center pt-6">
-          <button className="text-legal-blue hover:text-legal-blue-light font-medium">
-            טען תוצאות נוספות
-          </button>
-        </div>
-      )}
-
       {/* Full case view dialog */}
       <Dialog open={selectedCase !== null} onOpenChange={() => setSelectedCase(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" dir="rtl">

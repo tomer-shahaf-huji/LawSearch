@@ -18,7 +18,7 @@ app.add_middleware(
 
 class SearchRequest(BaseModel):
     query: str
-    size: int = 10
+    size: int = 10000
     from_: int = 0
 
 opensearch_client = bootstrap_open_search_client()
@@ -27,7 +27,7 @@ query_embedder = bootstrap_embedder(embedder_name="mock")
 @app.post("/api/lexical_search")
 async def lexical_search_documents(resuest: SearchRequest):
     try:
-        lexical_search_results, total = opensearch_client.lexical_search(resuest.query, top_k=10)
+        lexical_search_results, total = opensearch_client.lexical_search(resuest.query, top_k=resuest.size)
         return {
             "results": lexical_search_results,
             "total": total
