@@ -3,6 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Filter, Building2 } from "lucide-react";
+import { useState } from "react";
 
 interface SearchFiltersProps {
   filters: {
@@ -71,6 +72,8 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     "unknown"
   ];
 
+  const [open, setOpen] = useState(true); // Sidebar open by default
+
   // Change courts and topics to single value (string) instead of array
   const handleCourtChange = (court: string) => {
     if (filters.courts[0] === court) {
@@ -128,123 +131,146 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
   };
 
   return (
-    <div className="w-80 space-y-4" dir="rtl">
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Filter className="w-5 h-5" />
-              סינון תוצאות
-            </CardTitle>
-            <button
-              className="text-xs font-bold text-black border border-black rounded px-3 py-1 hover:bg-black/10 transition-colors"
-              onClick={handleClearFilters}
-              type="button"
-            >
-              נקה
-            </button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Year Multi-Select */}
-          <div>
-            <Label className="flex items-center gap-2 text-base font-medium mb-3">
-              <Calendar className="w-4 h-4" />
-              שנים
-            </Label>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {years.map((year) => {
-                const selected = (filters.years || []).includes(year);
-                return (
+    <div className="relative">
+      {!open && (
+        <button
+          className="absolute left-0 top-1 z-10 bg-transparent border-none p-2 hover:bg-black/10 transition-colors flex items-center justify-center rounded"
+          onClick={() => setOpen(true)}
+          type="button"
+          title="הצג סינון"
+          style={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Filter className="w-6 h-6 text-black" style={{ display: 'block', margin: 'auto' }} />
+        </button>
+      )}
+      {open && (
+        <div className="w-80 space-y-4" dir="rtl" style={{ transition: 'width 0.3s' }}>
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-lg">
                   <button
-                    key={year}
+                    className="p-0 m-0 bg-transparent border-none focus:outline-none flex items-center justify-center"
+                    onClick={() => setOpen(false)}
                     type="button"
-                    onClick={() => handleYearChange(year)}
-                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                    title="הסתר סינון"
+                    style={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
-                    <span
-                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
-                    />
-                    <span className="text-sm leading-tight">{year === allYearsValue ? "כל השנים" : year}</span>
+                    <Filter className="w-6 h-6 text-black" style={{ display: 'block', margin: 'auto' }} />
                   </button>
-                );
-              })}
-            </div>
-          </div>
+                  סינון תוצאות
+                </div>
+                <button
+                  className="text-xs font-bold text-black border border-black rounded px-3 py-1 hover:bg-black/10 transition-colors"
+                  onClick={handleClearFilters}
+                  type="button"
+                >
+                  נקה
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Year Multi-Select */}
+              <div>
+                <Label className="flex items-center gap-2 text-base font-medium mb-3">
+                  <Calendar className="w-4 h-4" />
+                  שנים
+                </Label>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {years.map((year) => {
+                    const selected = (filters.years || []).includes(year);
+                    return (
+                      <button
+                        key={year}
+                        type="button"
+                        onClick={() => handleYearChange(year)}
+                        className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                      >
+                        <span
+                          className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                        />
+                        <span className="text-sm leading-tight">{year === allYearsValue ? "כל השנים" : year}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          {/* Courts */}
-          <div>
-            <Label className="flex items-center gap-2 text-base font-medium mb-3">
-              <Building2 className="w-4 h-4" />
-              בתי משפט
-            </Label>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {courts.map((court) => {
-                const selected = filters.courts[0] === court;
-                return (
-                  <button
-                    key={court}
-                    type="button"
-                    onClick={() => handleCourtChange(court)}
-                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
-                  >
-                    <span
-                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
-                    />
-                    <span className="text-sm leading-tight">{court}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+              {/* Courts */}
+              <div>
+                <Label className="flex items-center gap-2 text-base font-medium mb-3">
+                  <Building2 className="w-4 h-4" />
+                  בתי משפט
+                </Label>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {courts.map((court) => {
+                    const selected = filters.courts[0] === court;
+                    return (
+                      <button
+                        key={court}
+                        type="button"
+                        onClick={() => handleCourtChange(court)}
+                        className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                      >
+                        <span
+                          className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                        />
+                        <span className="text-sm leading-tight">{court}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          {/* Topics */}
-          <div>
-            <Label className="text-base font-medium mb-3 block">נושאים</Label>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {topics.map((topic) => {
-                const selected = filters.topics[0] === topic;
-                return (
-                  <button
-                    key={topic}
-                    type="button"
-                    onClick={() => handleTopicChange(topic)}
-                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
-                  >
-                    <span
-                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
-                    />
-                    <span className="text-sm">{topic}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+              {/* Topics */}
+              <div>
+                <Label className="text-base font-medium mb-3 block">נושאים</Label>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {topics.map((topic) => {
+                    const selected = filters.topics[0] === topic;
+                    return (
+                      <button
+                        key={topic}
+                        type="button"
+                        onClick={() => handleTopicChange(topic)}
+                        className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                      >
+                        <span
+                          className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                        />
+                        <span className="text-sm">{topic}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          {/* Districts */}
-          <div>
-            <Label className="text-base font-medium mb-3 block">מחוזות</Label>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {districts.map((district) => {
-                const selected = (filters.districts || [])[0] === district;
-                return (
-                  <button
-                    key={district}
-                    type="button"
-                    onClick={() => handleDistrictChange(district)}
-                    className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
-                  >
-                    <span
-                      className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
-                    />
-                    <span className="text-sm">{district}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+              {/* Districts */}
+              <div>
+                <Label className="text-base font-medium mb-3 block">מחוזות</Label>
+                <div className="space-y-2 max-h-40 overflow-y-auto">
+                  {districts.map((district) => {
+                    const selected = (filters.districts || [])[0] === district;
+                    return (
+                      <button
+                        key={district}
+                        type="button"
+                        onClick={() => handleDistrictChange(district)}
+                        className={`flex items-center space-x-2 space-x-reverse focus:outline-none ${selected ? 'bg-legal-blue/10 border-legal-blue' : 'bg-transparent'} rounded px-2 py-1 w-full border transition-colors`}
+                      >
+                        <span
+                          className={`inline-block w-4 h-4 rounded-full border-2 mr-2 ${selected ? 'border-legal-blue bg-legal-blue' : 'border-gray-400 bg-white'}`}
+                        />
+                        <span className="text-sm">{district}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

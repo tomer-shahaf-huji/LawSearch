@@ -81,9 +81,6 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
         <div className="text-legal-gray">
           נמצאו {totalResults.toLocaleString('he-IL')} תוצאות עבור "<span className="font-medium">{searchQuery}</span>"
         </div>
-        <div className="text-sm text-muted-foreground">
-          מיון לפי רלוונטיות
-        </div>
       </div>
       {renderActiveFilters() && (
         <div className="text-xs text-muted-foreground mb-2 text-right">
