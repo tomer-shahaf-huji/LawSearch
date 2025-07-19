@@ -93,6 +93,7 @@ const Index = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onSearch={handleSearch}
+        showPopularSearches={!hasSearched}
       />
       
       {!hasSearched ? (

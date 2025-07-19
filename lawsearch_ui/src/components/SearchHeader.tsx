@@ -6,13 +6,19 @@ interface SearchHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSearch: () => void;
+  showPopularSearches?: boolean;
 }
 
-const SearchHeader = ({ searchQuery, onSearchChange, onSearch }: SearchHeaderProps) => {
+const SearchHeader = ({ searchQuery, onSearchChange, onSearch, showPopularSearches }: SearchHeaderProps) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       onSearch();
     }
+  };
+
+  // Handler for popular search click
+  const handlePopularSearch = (value: string) => {
+    onSearchChange(value);
   };
 
   return (
@@ -42,13 +48,15 @@ const SearchHeader = ({ searchQuery, onSearchChange, onSearch }: SearchHeaderPro
             </div>
           </form>
           
-          <div className="flex flex-wrap gap-2 mt-4 text-sm justify-end">
-            <button className="text-legal-gray hover:text-legal-blue transition-colors">פלילי</button>
-            <button className="text-legal-gray hover:text-legal-blue transition-colors">דיני עבודה</button>
-            <button className="text-legal-gray hover:text-legal-blue transition-colors">דיני משפחה</button>
-            <button className="text-legal-gray hover:text-legal-blue transition-colors">נזיקין</button>
-            <span className="text-legal-gray-dark">:חיפושים פופולריים</span>
-          </div>
+          {showPopularSearches && (
+            <div className="flex gap-2 mt-4 items-center justify-end">
+              <button className="text-legal-gray hover:text-legal-blue transition-colors" type="button" onClick={() => handlePopularSearch('פלילי')}>פלילי</button>
+              <button className="text-legal-gray hover:text-legal-blue transition-colors" type="button" onClick={() => handlePopularSearch('דיני עבודה')}>דיני עבודה</button>
+              <button className="text-legal-gray hover:text-legal-blue transition-colors" type="button" onClick={() => handlePopularSearch('דיני משפחה')}>דיני משפחה</button>
+              <button className="text-legal-gray hover:text-legal-blue transition-colors" type="button" onClick={() => handlePopularSearch('נזיקין')}>נזיקין</button>
+              <span className="text-legal-gray-dark">:חיפושים פופולריים</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
