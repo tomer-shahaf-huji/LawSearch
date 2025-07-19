@@ -117,14 +117,33 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     }
   };
 
+  // Add clear filters handler
+  const handleClearFilters = () => {
+    onFiltersChange({
+      courts: [],
+      topics: [],
+      years: ["all"],
+      districts: []
+    });
+  };
+
   return (
     <div className="w-80 space-y-4" dir="rtl">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Filter className="w-5 h-5" />
-            סינון תוצאות
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Filter className="w-5 h-5" />
+              סינון תוצאות
+            </CardTitle>
+            <button
+              className="text-xs text-legal-blue border border-legal-blue rounded px-2 py-1 hover:bg-legal-blue/10 transition-colors"
+              onClick={handleClearFilters}
+              type="button"
+            >
+              נקה
+            </button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Year Multi-Select */}
