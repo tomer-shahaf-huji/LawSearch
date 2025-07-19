@@ -134,7 +134,7 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
     <div className="relative">
       {!open && (
         <button
-          className="absolute left-0 top-1 z-10 bg-transparent border-none p-2 hover:bg-black/10 transition-colors flex items-center justify-center rounded"
+          className="absolute left-0 top-0 z-10 bg-transparent border-none p-2 hover:bg-black/10 transition-colors flex items-center justify-center rounded"
           onClick={() => setOpen(true)}
           type="button"
           title="הצג סינון"
@@ -146,7 +146,7 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
       {open && (
         <div className="w-80 space-y-4" dir="rtl" style={{ transition: 'width 0.3s' }}>
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 pt-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-lg">
                   <button
