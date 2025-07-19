@@ -71,7 +71,7 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
       parts.push(`בית משפט: ${filters.courts.join(", ")}`);
     }
     if (parts.length === 0) return null;
-    return `(${parts.join(" | ")})`;
+    return parts.join(" | ");
   };
 
   return (
@@ -79,12 +79,17 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
       {/* Results summary */}
       <div className="flex items-center justify-between mb-6">
         <div className="text-legal-gray">
-          נמצאו {totalResults.toLocaleString('he-IL')} תוצאות עבור "<span className="font-medium">{searchQuery}</span>" {renderActiveFilters() && <span className="text-xs text-muted-foreground">{renderActiveFilters()}</span>}
+          נמצאו {totalResults.toLocaleString('he-IL')} תוצאות עבור "<span className="font-medium">{searchQuery}</span>"
         </div>
         <div className="text-sm text-muted-foreground">
           מיון לפי רלוונטיות
         </div>
       </div>
+      {renderActiveFilters() && (
+        <div className="text-xs text-muted-foreground mb-2 text-right">
+          {renderActiveFilters()}
+        </div>
+      )}
 
       {/* Results list */}
       <div className="space-y-4">
