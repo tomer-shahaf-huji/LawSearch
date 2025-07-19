@@ -137,7 +137,7 @@ const SearchFilters = ({ filters, onFiltersChange }: SearchFiltersProps) => {
               סינון תוצאות
             </CardTitle>
             <button
-              className="text-xs text-legal-blue border border-legal-blue rounded px-2 py-1 hover:bg-legal-blue/10 transition-colors"
+              className="text-xs font-bold text-black border border-black rounded px-3 py-1 hover:bg-black/10 transition-colors"
               onClick={handleClearFilters}
               type="button"
             >
