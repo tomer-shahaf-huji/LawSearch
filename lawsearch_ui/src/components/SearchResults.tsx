@@ -18,6 +18,8 @@ interface CaseResult {
   lexical_score?: number;
   semantic_score?: number;
   rrf_score?: number;
+  html_content?: string; // Add optional HTML content
+  file_url?: string; // Add optional file URL for iframe display
 }
 
 interface SearchResultsProps {
@@ -49,8 +51,33 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
     );
   };
 
-  const handleCaseClick = (case_: CaseResult) => {
-    setSelectedCase(case_);
+  const handleCaseClick = async (case_: CaseResult) => {
+    try {
+      // Fetch full document content from backend
+      const response = await fetch('http://localhost:8501/api/get_file_content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ doc_id: case_.doc_id }),
+      });
+
+      if (response.ok) {
+        const fullDocument = await response.json();
+        setSelectedCase({
+          ...case_,
+          ...fullDocument // Merge the full document data
+        });
+      } else {
+        // Fallback to current case data if API fails
+        setSelectedCase(case_);
+      }
+    } catch (error) {
+      console.error('Error fetching document:', error);
+      // Fallback to current case data if API fails
+      setSelectedCase(case_);
+    }
+    
     onCaseClick(case_.id);
   };
 
@@ -188,12 +215,26 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
                   </div>
                 </div>
                 
-                <div>
-                  <h4 className="font-semibold mb-2">תוכן מלא:</h4>
-                  <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-                    {highlightSearchTerm(selectedCase.content, searchQuery)}
-                  </div>
-                </div>
+                          <div>
+            <h4 className="font-semibold mb-2">תוכן מלא:</h4>
+            {selectedCase.file_url ? (
+              <iframe
+                src={selectedCase.file_url}
+                className="w-full h-96 border rounded"
+                title="Document Viewer"
+                sandbox="allow-same-origin allow-scripts"
+              />
+            ) : selectedCase.html_content ? (
+              <div 
+                className="text-sm leading-relaxed text-muted-foreground"
+                dangerouslySetInnerHTML={{ __html: selectedCase.html_content }}
+              />
+            ) : (
+              <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                {highlightSearchTerm(selectedCase.content, searchQuery)}
+              </div>
+            )}
+          </div>
               </div>
             </>
           )}

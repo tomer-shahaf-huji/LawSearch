@@ -50,7 +50,7 @@ class OpenSearchClient:
 
         return results, total
 
-    def lexical_search(self, query: str, top_k: int = 10):
+    def lexical_search(self, query: str, top_k: int = 10_000):
         body = {
             "size": top_k,
             "query": {
@@ -109,6 +109,40 @@ class OpenSearchClient:
 
         return fused_results[:k]
 
+    def get_document_by_id(self, doc_id: str) -> RetrievalResult:
+        """Get a single document by its doc_id"""
+        try:
+            body = {
+                "size": 1,
+                "query": {
+                    "term": {
+                        "doc_id": doc_id
+                    }
+                }
+            }
+            response = self.client.search(index=self.index_name, body=body)
+            
+            if response["hits"]["hits"]:
+                hit = response["hits"]["hits"][0]
+                return RetrievalResult(
+                    id=hit["_id"],
+                    doc_id=hit["_source"]["doc_id"],
+                    chunk=hit["_source"]["chunk"],
+                    content=hit["_source"]["content"],
+                    headline=hit["_source"]["headline"],
+                    district=hit["_source"].get("district"),
+                    court=hit["_source"].get("court"),
+                    judges=hit["_source"].get("judges"),
+                    judgement_type=hit["_source"].get("judgement_type"),
+                    decision_date=hit["_source"].get("decision_date"),
+                    lexical_score=hit["_score"]
+                )
+            else:
+                return None
+        except Exception as e:
+            print(f"Error retrieving document {doc_id}: {e}")
+            return None
+
 
 def bootstrap_open_search_client() -> OpenSearchClient:
     client = OpenSearch(
@@ -118,6 +152,6 @@ def bootstrap_open_search_client() -> OpenSearchClient:
         verify_certs=False
     )
 
-    index_name = "all_law_cases"
+    index_name = "supreme_court_law_cases"
     opensearch_client = OpenSearchClient(client=client, index_name=index_name)
     return opensearch_client

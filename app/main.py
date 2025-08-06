@@ -21,6 +21,9 @@ class SearchRequest(BaseModel):
     size: int = 10000
     from_: int = 0
 
+class FileRequest(BaseModel):
+    doc_id: str
+
 opensearch_client = bootstrap_open_search_client()
 query_embedder = bootstrap_embedder(embedder_name="mock")
 
@@ -43,6 +46,30 @@ async def semantic_search_documents(resuest: SearchRequest):
         return {
             "results": semantic_search_results
         }
+    
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/api/get_file_content")
+async def get_file_content(request: FileRequest):
+    try:
+        # Get the full document content from OpenSearch
+        document = opensearch_client.get_document_by_id(request.doc_id)
+        
+        if document:
+            return {
+                "doc_id": request.doc_id,
+                "content": document.content,
+                "html_content": document.html_content if hasattr(document, 'html_content') else None,
+                "file_url": document.file_url if hasattr(document, 'file_url') else None,
+                "headline": document.headline,
+                "court": document.court,
+                "judges": document.judges,
+                "decision_date": document.decision_date,
+                "judgement_type": document.judgement_type
+            }
+        else:
+            return {"error": "Document not found"}
     
     except Exception as e:
         return {"error": str(e)}
