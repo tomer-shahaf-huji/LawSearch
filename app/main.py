@@ -4,6 +4,7 @@ from opensearchpy import OpenSearch
 import asyncio
 from opensearch_client import bootstrap_open_search_client
 from embedder_client import bootstrap_embedder
+from cohere_client import bootstrap_cohere_client
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -24,8 +25,12 @@ class SearchRequest(BaseModel):
 class FileRequest(BaseModel):
     doc_id: str
 
+class SummarizeRequest(BaseModel):
+    doc_id: str
+
 opensearch_client = bootstrap_open_search_client()
 query_embedder = bootstrap_embedder(embedder_name="mock")
+cohere_client = bootstrap_cohere_client()
 
 @app.post("/api/lexical_search")
 async def lexical_search_documents(resuest: SearchRequest):
@@ -73,3 +78,24 @@ async def get_file_content(request: FileRequest):
     
     except Exception as e:
         return {"error": str(e)}
+
+@app.post("/api/summarize_document")
+async def summarize_document(request: SummarizeRequest):
+    try:
+        # Get the full document content from OpenSearch
+        document = opensearch_client.get_document_by_id(request.doc_id)
+        
+        if document:
+            # Use CohereClient to summarize the document
+            summary = cohere_client.summarize(document.content)
+            
+            return {
+                "doc_id": request.doc_id,
+                "summary": summary,
+                "success": True
+            }
+        else:
+            return {"error": "Document not found", "success": False}
+    
+    except Exception as e:
+        return {"error": str(e), "success": False}

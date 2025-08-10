@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { CalendarDays, Building2, FileText, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CalendarDays, Building2, FileText, Eye, FileText as FileTextIcon } from "lucide-react";
 import { useState } from "react";
 
 interface CaseResult {
@@ -37,6 +38,9 @@ interface SearchResultsProps {
 
 const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filters }: SearchResultsProps) => {
   const [selectedCase, setSelectedCase] = useState<CaseResult | null>(null);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
 
   const highlightSearchTerm = (text: string, query: string) => {
     if (!query) return text;
@@ -49,6 +53,40 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
         <mark key={index} className="bg-legal-gray/20">{part}</mark>
       ) : part
     );
+  };
+
+  const handleSummarize = async () => {
+    if (!selectedCase) return;
+    
+    setIsSummarizing(true);
+    setSummaryError(null);
+    setSummary(null);
+    
+    try {
+      const response = await fetch('http://localhost:8501/api/summarize_document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ doc_id: selectedCase.doc_id }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSummary(data.summary);
+        } else {
+          setSummaryError(data.error || 'שגיאה בסיכום המסמך');
+        }
+      } else {
+        setSummaryError('שגיאה בחיבור לשרת');
+      }
+    } catch (error) {
+      console.error('Error summarizing document:', error);
+      setSummaryError('שגיאה בסיכום המסמך');
+    } finally {
+      setIsSummarizing(false);
+    }
   };
 
   const handleCaseClick = async (case_: CaseResult) => {
@@ -68,6 +106,9 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
           ...case_,
           ...fullDocument // Merge the full document data
         });
+        // Reset summary when opening a new document
+        setSummary(null);
+        setSummaryError(null);
       } else {
         // Fallback to current case data if API fails
         setSelectedCase(case_);
@@ -175,7 +216,11 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
       </div>
 
       {/* Full case view dialog */}
-      <Dialog open={selectedCase !== null} onOpenChange={() => setSelectedCase(null)}>
+      <Dialog open={selectedCase !== null} onOpenChange={() => {
+        setSelectedCase(null);
+        setSummary(null);
+        setSummaryError(null);
+      }}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" dir="rtl">
           {selectedCase && (
             <>
@@ -214,27 +259,55 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
                     <span>שופט/ת: {selectedCase.judges}</span>
                   </div>
                 </div>
+
+                {/* Summarize button */}
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={handleSummarize}
+                    disabled={isSummarizing}
+                    className="bg-legal-blue hover:bg-legal-blue-light text-white"
+                  >
+                    <FileTextIcon className="w-4 h-4 ml-2" />
+                    {isSummarizing ? 'מסכם...' : 'סכם'}
+                  </Button>
+                </div>
+
+                {/* Summary section */}
+                {summary && (
+                  <div className="bg-legal-gray/5 border border-legal-gray/20 rounded-lg p-4">
+                    <h4 className="font-semibold mb-3 text-legal-blue">סיכום המסמך:</h4>
+                    <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                      {summary}
+                    </div>
+                  </div>
+                )}
+
+                {summaryError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-600 text-sm">{summaryError}</p>
+                  </div>
+                )}
                 
-                          <div>
-            <h4 className="font-semibold mb-2">תוכן מלא:</h4>
-            {selectedCase.file_url ? (
-              <iframe
-                src={selectedCase.file_url}
-                className="w-full h-96 border rounded"
-                title="Document Viewer"
-                sandbox="allow-same-origin allow-scripts"
-              />
-            ) : selectedCase.html_content ? (
-              <div 
-                className="text-sm leading-relaxed text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: selectedCase.html_content }}
-              />
-            ) : (
-              <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-                {highlightSearchTerm(selectedCase.content, searchQuery)}
-              </div>
-            )}
-          </div>
+                <div>
+                  <h4 className="font-semibold mb-2">תוכן מלא:</h4>
+                  {selectedCase.file_url ? (
+                    <iframe
+                      src={selectedCase.file_url}
+                      className="w-full h-96 border rounded"
+                      title="Document Viewer"
+                      sandbox="allow-same-origin allow-scripts"
+                    />
+                  ) : selectedCase.html_content ? (
+                    <div 
+                      className="text-sm leading-relaxed text-muted-foreground"
+                      dangerouslySetInnerHTML={{ __html: selectedCase.html_content }}
+                    />
+                  ) : (
+                    <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                      {highlightSearchTerm(selectedCase.content, searchQuery)}
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}
