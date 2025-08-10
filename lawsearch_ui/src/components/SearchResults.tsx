@@ -225,7 +225,7 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
           {selectedCase && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-primary">
+                <DialogTitle className="text-xl font-bold text-primary text-right">
                   {selectedCase.headline}
                 </DialogTitle>
                 <div className="flex items-center gap-2 mt-2">
@@ -261,7 +261,7 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
                 </div>
 
                 {/* Summarize button */}
-                <div className="flex justify-end">
+                <div className="flex justify-start">
                   <Button 
                     onClick={handleSummarize}
                     disabled={isSummarizing}
