@@ -16,10 +16,11 @@ class CohereClient:
     def summarize(self, case_text: str) -> str:
         limited_context_case_text = cut_first_n_words(case_text, CONTEXT_SIZE_IN_WORDS)
         prompt = f"""
-        אתה משמש כעוזר משפטי במשרד עורכי דין בישראל. עליך לבצע סיכום של החלטה או פסק-דין משפטי.
-        הסיכום צריך להיות בין 3-5 נקודות מרכזיות.
-        המסמך: {limited_context_case_text}
-        סיכום:
+        You serve as a legal assistant at a law firm in Israel.  
+        You must summarize a legal decision or ruling.  
+        The summary should be between 3 to 5 key points.
+        document: {limited_context_case_text}
+        summary:
         """
 
         # Add user prompt to history
@@ -39,6 +40,15 @@ class CohereClient:
 
     def ask(self, question: str) -> str:
         # Add the new question to history
+        limited_context_case_text = cut_first_n_words(case_text, CONTEXT_SIZE_IN_WORDS)
+        prompt = f"""
+        You serve as a legal assistant at a law firm in Israel.  
+        You must answer questions based on a provided legal decision or ruling.  
+        Your answers should be accurate, concise, and clear.
+        document: {limited_context_case_text}
+        summary:
+        """
+
         self.history.append({"role": "user", "content": question})
 
         response = self.co.chat(
