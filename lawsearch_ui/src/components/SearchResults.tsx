@@ -336,19 +336,21 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     placeholder="הקלד את השאלה שלך כאן..."
-                    className="w-full p-3 border border-gray-300 rounded-lg resize-none"
-                    rows={3}
+                    className="w-full p-3 border border-gray-400 rounded-lg resize-none"
+                    rows={1}
                     dir="rtl"
+                    style={{ minHeight: '40px', maxHeight: '200px' }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                      target.style.height = Math.min(target.scrollHeight, 200) + 'px';
+                    }}
                   />
                 </div>
 
                 {/* Answer section */}
                 {answer && (
                   <div className="bg-legal-blue/5 border border-legal-blue/20 rounded-lg p-4 mt-4">
-                    <h4 className="font-semibold mb-2 text-legal-blue">שאלה:</h4>
-                    <div className="text-sm leading-relaxed text-muted-foreground mb-4 p-3 bg-gray-50 rounded">
-                      {question}
-                    </div>
                     <h4 className="font-semibold mb-3 text-legal-blue">תשובה:</h4>
                     <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
                       {answer}
