@@ -6,7 +6,6 @@ services:
     container_name: opensearch
     environment:
       - discovery.type=single-node
-      # Optionally disable security plugin for local testing.
       - plugins.security.disabled=true
     ulimits:
       memlock:
@@ -44,6 +43,20 @@ services:
       - pg-data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"      # S3 API
+      - "9001:9001"      # MinIO Console
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+
   app:
     build: ./app
     ports:
@@ -51,8 +64,15 @@ services:
     depends_on:
       - opensearch
       - postgres
+      - minio
     volumes:
       - ./app:/app
+    environment:
+      # Example: configure S3 credentials for your app
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: lawsearch
 
   ui:
     build:
@@ -67,8 +87,8 @@ services:
     depends_on:
       - app
 
-
 volumes:
   opensearch-data:
   pg-data:
   ui_node_modules:
+  minio-data:
