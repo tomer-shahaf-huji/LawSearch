@@ -28,6 +28,10 @@ class FileRequest(BaseModel):
 class SummarizeRequest(BaseModel):
     doc_id: str
 
+class AskRequest(BaseModel):
+    doc_id: str
+    question: str
+
 opensearch_client = bootstrap_open_search_client()
 query_embedder = bootstrap_embedder(embedder_name="mock")
 cohere_client = bootstrap_cohere_client()
@@ -92,6 +96,28 @@ async def summarize_document(request: SummarizeRequest):
             return {
                 "doc_id": request.doc_id,
                 "summary": summary,
+                "success": True
+            }
+        else:
+            return {"error": "Document not found", "success": False}
+    
+    except Exception as e:
+        return {"error": str(e), "success": False}
+
+@app.post("/api/ask_document")
+async def ask_document(request: AskRequest):
+    try:
+        # Get the full document content from OpenSearch
+        document = opensearch_client.get_document_by_id(request.doc_id)
+        
+        if document:
+            # Use CohereClient to ask a question about the document
+            answer = cohere_client.ask(request.question, document.content)
+            
+            return {
+                "doc_id": request.doc_id,
+                "question": request.question,
+                "answer": answer,
                 "success": True
             }
         else:

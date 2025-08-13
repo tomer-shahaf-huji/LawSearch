@@ -41,6 +41,11 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
   const [summary, setSummary] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [question, setQuestion] = useState<string>("");
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [isAsking, setIsAsking] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
+  const [showQuestionInput, setShowQuestionInput] = useState(false);
 
   const highlightSearchTerm = (text: string, query: string) => {
     if (!query) return text;
@@ -89,6 +94,43 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
     }
   };
 
+  const handleAsk = async () => {
+    if (!selectedCase || !question.trim()) return;
+    
+    setIsAsking(true);
+    setAskError(null);
+    setAnswer(null);
+    
+    try {
+      const response = await fetch('http://localhost:8501/api/ask_document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          doc_id: selectedCase.doc_id,
+          question: question.trim()
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setAnswer(data.answer);
+        } else {
+          setAskError(data.error || 'שגיאה בקבלת תשובה');
+        }
+      } else {
+        setAskError('שגיאה בחיבור לשרת');
+      }
+    } catch (error) {
+      console.error('Error asking question:', error);
+      setAskError('שגיאה בקבלת תשובה');
+    } finally {
+      setIsAsking(false);
+    }
+  };
+
   const handleCaseClick = async (case_: CaseResult) => {
     try {
       // Fetch full document content from backend
@@ -106,9 +148,12 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
           ...case_,
           ...fullDocument // Merge the full document data
         });
-        // Reset summary when opening a new document
+        // Reset summary and ask state when opening a new document
         setSummary(null);
         setSummaryError(null);
+        setQuestion("");
+        setAnswer(null);
+        setAskError(null);
       } else {
         // Fallback to current case data if API fails
         setSelectedCase(case_);
@@ -220,6 +265,10 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
         setSelectedCase(null);
         setSummary(null);
         setSummaryError(null);
+        setQuestion("");
+        setAnswer(null);
+        setAskError(null);
+        setShowQuestionInput(false);
       }}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" dir="rtl">
           {selectedCase && (
@@ -260,8 +309,8 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
                   </div>
                 </div>
 
-                {/* Summarize button */}
-                <div className="flex justify-start">
+                {/* Summarize and Ask buttons */}
+                <div className="flex justify-start gap-2">
                   <Button 
                     onClick={handleSummarize}
                     disabled={isSummarizing}
@@ -270,7 +319,48 @@ const SearchResults = ({ results, searchQuery, totalResults, onCaseClick, filter
                     <FileTextIcon className="w-4 h-4 ml-2" />
                     {isSummarizing ? 'מסכם...' : 'סכם'}
                   </Button>
+                  
+                  <Button 
+                    onClick={handleAsk}
+                    disabled={isAsking || !question.trim()}
+                    className="bg-legal-blue hover:bg-legal-blue-light text-white"
+                  >
+                    <FileTextIcon className="w-4 h-4 ml-2" />
+                    {isAsking ? 'שולח...' : 'שאל'}
+                  </Button>
                 </div>
+
+                {/* Question input field */}
+                <div className="space-y-2 mt-4">
+                  <textarea
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="הקלד את השאלה שלך כאן..."
+                    className="w-full p-3 border border-gray-300 rounded-lg resize-none"
+                    rows={3}
+                    dir="rtl"
+                  />
+                </div>
+
+                {/* Answer section */}
+                {answer && (
+                  <div className="bg-legal-blue/5 border border-legal-blue/20 rounded-lg p-4 mt-4">
+                    <h4 className="font-semibold mb-2 text-legal-blue">שאלה:</h4>
+                    <div className="text-sm leading-relaxed text-muted-foreground mb-4 p-3 bg-gray-50 rounded">
+                      {question}
+                    </div>
+                    <h4 className="font-semibold mb-3 text-legal-blue">תשובה:</h4>
+                    <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
+                      {answer}
+                    </div>
+                  </div>
+                )}
+
+                {askError && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p className="text-red-600 text-sm">{askError}</p>
+                  </div>
+                )}
 
                 {/* Summary section */}
                 {summary && (

@@ -38,18 +38,19 @@ class CohereClient:
 
         return summary
 
-    def ask(self, question: str) -> str:
+    def ask(self, question: str, document_content: str) -> str:
         # Add the new question to history
-        limited_context_case_text = cut_first_n_words(case_text, CONTEXT_SIZE_IN_WORDS)
+        limited_context_document_content = cut_first_n_words(document_content, CONTEXT_SIZE_IN_WORDS)
         prompt = f"""
         You serve as a legal assistant at a law firm in Israel.  
         You must answer questions based on a provided legal decision or ruling.  
         Your answers should be accurate, concise, and clear.
-        document: {limited_context_case_text}
-        summary:
+        document: {limited_context_document_content}
+        question: {question}
+        answer:
         """
 
-        self.history.append({"role": "user", "content": question})
+        self.history.append({"role": "user", "content": prompt})
 
         response = self.co.chat(
             model=self.model,
