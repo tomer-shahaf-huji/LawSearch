@@ -5,6 +5,7 @@ import asyncio
 from opensearch_client import bootstrap_open_search_client
 from embedder_client import bootstrap_embedder
 from cohere_client import bootstrap_cohere_client
+from minio_client import bootstrap_minio_client
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -32,9 +33,13 @@ class AskRequest(BaseModel):
     doc_id: str
     question: str
 
+class HtmlRequest(BaseModel):
+    html_path: str
+
 opensearch_client = bootstrap_open_search_client()
 query_embedder = bootstrap_embedder(embedder_name="mock")
 cohere_client = bootstrap_cohere_client()
+minio_client = bootstrap_minio_client()
 
 @app.post("/api/lexical_search")
 async def lexical_search_documents(resuest: SearchRequest):
@@ -66,11 +71,16 @@ async def get_file_content(request: FileRequest):
         document = opensearch_client.get_document_by_id(request.doc_id)
         
         if document:
+            # Get HTML URL if html_path exists
+            html_url = None
+            if document.html_path:
+                html_url = minio_client.get_presigned_url(document.html_path)
+            
             return {
                 "doc_id": request.doc_id,
                 "content": document.content,
-                "html_content": document.html_content if hasattr(document, 'html_content') else None,
-                "file_url": document.file_url if hasattr(document, 'file_url') else None,
+                "html_path": document.html_path,
+                "html_url": html_url,
                 "headline": document.headline,
                 "court": document.court,
                 "judges": document.judges,
@@ -82,6 +92,23 @@ async def get_file_content(request: FileRequest):
     
     except Exception as e:
         return {"error": str(e)}
+
+@app.post("/api/get_html_content")
+async def get_html_content(request: HtmlRequest):
+    try:
+        # Get HTML content directly from MinIO
+        html_content = minio_client.get_html_content(request.html_path)
+        
+        if html_content:
+            return {
+                "html_content": html_content,
+                "success": True
+            }
+        else:
+            return {"error": "HTML content not found", "success": False}
+    
+    except Exception as e:
+        return {"error": str(e), "success": False}
 
 @app.post("/api/summarize_document")
 async def summarize_document(request: SummarizeRequest):

@@ -16,6 +16,7 @@ class RetrievalResult:
     court: str = None
     judges: str = None
     decision_date: str = None
+    html_path: str = None
     lexical_score: float = None
     semantic_score: float = None
     rrf_score: float = None
@@ -44,6 +45,7 @@ class OpenSearchClient:
                     judges=hit["_source"].get("judges"),
                     judgement_type=hit["_source"].get("judgement_type"),
                     decision_date=hit["_source"].get("decision_date"),
+                    html_path=hit["_source"].get("html_path"),
                     lexical_score=hit["_score"]
                 )
             )
@@ -135,6 +137,7 @@ class OpenSearchClient:
                     judges=hit["_source"].get("judges"),
                     judgement_type=hit["_source"].get("judgement_type"),
                     decision_date=hit["_source"].get("decision_date"),
+                    html_path=hit["_source"].get("html_path"),
                     lexical_score=hit["_score"]
                 )
             else:
