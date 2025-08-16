@@ -30,19 +30,6 @@ services:
       - opensearch
     restart: unless-stopped
 
-  postgres:
-    image: postgres:15
-    container_name: tags_pg
-    environment:
-      POSTGRES_DB: tags_db
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg-data:/var/lib/postgresql/data
-    restart: unless-stopped
-
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -63,7 +50,6 @@ services:
       - "8501:8501"
     depends_on:
       - opensearch
-      - postgres
       - minio
     volumes:
       - ./app:/app
