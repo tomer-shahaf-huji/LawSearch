@@ -2,10 +2,10 @@ from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from opensearchpy import OpenSearch
 import asyncio
-from opensearch_client import bootstrap_open_search_client
-from embedder_client import bootstrap_embedder
-from cohere_client import bootstrap_cohere_client
-from minio_client import bootstrap_minio_client
+from clients.opensearch_client import bootstrap_open_search_client
+from clients.embedder_client import bootstrap_embedder
+from clients.cohere_client import bootstrap_cohere_client
+from clients.minio_client import bootstrap_minio_client
 from pydantic import BaseModel
 
 app = FastAPI()
